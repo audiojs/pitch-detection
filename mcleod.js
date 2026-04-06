@@ -24,27 +24,22 @@ export default function mcleod(data, params) {
     nsdf[tau] = e1 + e2 > 0 ? 2 * acf / (e1 + e2) : 0
   }
 
-  // find peaks: positive-going zero crossings, then local maxima
+  // find peaks: skip initial positive region, then collect local maxima after each zero crossing
   let peaks = []
-  let positive = false
-  let maxVal = -Infinity, maxTau = 0
+  let wasNeg = false
 
   for (let tau = 1; tau < half; tau++) {
-    if (nsdf[tau] > 0 && !positive) {
-      positive = true
-      maxVal = -Infinity
+    if (nsdf[tau] < 0) wasNeg = true
+    if (!wasNeg || nsdf[tau] <= 0) continue
+
+    // entered a positive region after a negative — find local max
+    let maxVal = nsdf[tau], maxTau = tau
+    while (tau + 1 < half && nsdf[tau + 1] > 0) {
+      tau++
+      if (nsdf[tau] > maxVal) { maxVal = nsdf[tau]; maxTau = tau }
     }
-    if (nsdf[tau] < 0 && positive) {
-      if (maxVal > 0) peaks.push({ tau: maxTau, val: maxVal })
-      positive = false
-    }
-    if (positive && nsdf[tau] > maxVal) {
-      maxVal = nsdf[tau]
-      maxTau = tau
-    }
+    peaks.push({ tau: maxTau, val: maxVal })
   }
-  // catch final region
-  if (positive && maxVal > 0) peaks.push({ tau: maxTau, val: maxVal })
 
   if (!peaks.length) return null
 

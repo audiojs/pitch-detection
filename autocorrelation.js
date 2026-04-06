@@ -27,8 +27,8 @@ export default function autocorrelation(data, params) {
 
   // find first peak after first dip
   let tau = 1
-  while (tau < half - 1 && r[tau] >= r[tau - 1]) tau++ // skip initial descent
-  while (tau < half - 1 && r[tau] <= r[tau + 1]) tau++ // climb to peak
+  while (tau < half - 1 && r[tau] > r[tau + 1]) tau++ // descend past initial peak
+  while (tau < half - 1 && r[tau] < r[tau + 1]) tau++ // climb to first real peak
 
   if (tau >= half - 1 || r[tau] < threshold) return null
 
