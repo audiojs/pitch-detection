@@ -1,0 +1,52 @@
+{
+  "name": "pitch-detection",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Pitch detection: YIN, McLeod, autocorrelation",
+  "exports": {
+    ".": "./index.js",
+    "./yin.js": "./yin.js",
+    "./mcleod.js": "./mcleod.js",
+    "./autocorrelation.js": "./autocorrelation.js"
+  },
+  "files": [
+    "index.js",
+    "yin.js",
+    "mcleod.js",
+    "autocorrelation.js"
+  ],
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/audiojs/pitch-detection.git"
+  },
+  "keywords": [
+    "pitch",
+    "pitch-detection",
+    "yin",
+    "mcleod",
+    "mpm",
+    "autocorrelation",
+    "frequency",
+    "f0",
+    "fundamental",
+    "audio",
+    "dsp",
+    "signal-processing"
+  ],
+  "author": "Dmitry Iv. <dfcreative@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/audiojs/pitch-detection/issues"
+  },
+  "homepage": "https://github.com/audiojs/pitch-detection#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "tst": "^9.4.0"
+  }
+}
