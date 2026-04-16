@@ -2,7 +2,7 @@
  * McLeod Pitch Method (McLeod & Wyvill, 2005).
  * Normalized square difference function → peak picking → parabolic interpolation.
  *
- * @param {Float32Array} data - audio samples (single window)
+ * @param {Float32Array | Float64Array} data - audio samples (single window)
  * @param {{fs?: number, threshold?: number}} params
  * @returns {{freq: number, clarity: number} | null}
  */
@@ -13,15 +13,18 @@ export default function mcleod(data, params) {
   let half = len >> 1
 
   // normalized square difference function (NSDF)
+  // e1 = Σ x[i]² (constant); e2(τ) = Σ x[i+τ]² computed incrementally
   let nsdf = new Float64Array(half)
+  let e1 = 0
+  for (let i = 0; i < half; i++) e1 += data[i] * data[i]
+  let e2 = e1
   for (let tau = 0; tau < half; tau++) {
-    let acf = 0, e1 = 0, e2 = 0
-    for (let i = 0; i < half; i++) {
-      acf += data[i] * data[i + tau]
-      e1 += data[i] * data[i]
-      e2 += data[i + tau] * data[i + tau]
-    }
+    let acf = 0
+    for (let i = 0; i < half; i++) acf += data[i] * data[i + tau]
     nsdf[tau] = e1 + e2 > 0 ? 2 * acf / (e1 + e2) : 0
+    // slide window: drop x[τ], add x[τ+half]
+    let drop = data[tau], add = data[tau + half] || 0
+    e2 += add * add - drop * drop
   }
 
   // find peaks: skip initial positive region, then collect local maxima after each zero crossing

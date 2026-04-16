@@ -2,7 +2,7 @@
  * YIN pitch detection (de Cheveigné & Kawahara, 2002).
  * Difference fn → cumulative mean normalized difference → threshold → parabolic interpolation.
  *
- * @param {Float32Array} data - audio samples (single window, eg. 2048 samples)
+ * @param {Float32Array | Float64Array} data - audio samples (single window, eg. 2048 samples)
  * @param {{fs?: number, threshold?: number}} params
  * @returns {{freq: number, clarity: number} | null}
  */
@@ -29,7 +29,7 @@ export default function yin(data, params) {
   let running = 0
   for (let tau = 1; tau < half; tau++) {
     running += d[tau]
-    cmndf[tau] = d[tau] * tau / running
+    cmndf[tau] = running > 0 ? d[tau] * tau / running : 1
   }
 
   // step 4: absolute threshold — find first dip below threshold
@@ -46,7 +46,8 @@ export default function yin(data, params) {
 
   // step 5: parabolic interpolation
   let s0 = cmndf[tau - 1], s1 = cmndf[tau], s2 = cmndf[tau + 1]
-  let shift = (s0 - s2) / (2 * (s0 - 2 * s1 + s2))
+  let denom = s0 - 2 * s1 + s2
+  let shift = denom !== 0 ? (s0 - s2) / (2 * denom) : 0
   let period = tau + shift
 
   return { freq: fs / period, clarity: 1 - s1 }

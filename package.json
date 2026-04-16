@@ -2,18 +2,34 @@
   "name": "pitch-detection",
   "version": "1.0.0",
   "type": "module",
-  "description": "Pitch detection: YIN, McLeod, autocorrelation",
+  "description": "Pitch, chroma, chord and key detection: YIN, McLeod, pYIN, HPS, cepstrum, SWIPE, autocorrelation, AMDF, NNLS chroma, chord templates, Krumhansl-Schmuckler",
   "exports": {
     ".": "./index.js",
     "./yin.js": "./yin.js",
     "./mcleod.js": "./mcleod.js",
-    "./autocorrelation.js": "./autocorrelation.js"
+    "./autocorrelation.js": "./autocorrelation.js",
+    "./amdf.js": "./amdf.js",
+    "./hps.js": "./hps.js",
+    "./cepstrum.js": "./cepstrum.js",
+    "./swipe.js": "./swipe.js",
+    "./pyin.js": "./pyin.js",
+    "./chroma.js": "./chroma.js",
+    "./chord.js": "./chord.js",
+    "./key.js": "./key.js"
   },
   "files": [
     "index.js",
     "yin.js",
     "mcleod.js",
-    "autocorrelation.js"
+    "autocorrelation.js",
+    "amdf.js",
+    "hps.js",
+    "cepstrum.js",
+    "swipe.js",
+    "pyin.js",
+    "chroma.js",
+    "chord.js",
+    "key.js"
   ],
   "scripts": {
     "test": "node test.js"
@@ -26,9 +42,21 @@
     "pitch",
     "pitch-detection",
     "yin",
+    "pyin",
     "mcleod",
     "mpm",
     "autocorrelation",
+    "amdf",
+    "hps",
+    "cepstrum",
+    "swipe",
+    "chroma",
+    "pcp",
+    "nnls",
+    "chord",
+    "chord-detection",
+    "key-detection",
+    "krumhansl",
     "frequency",
     "f0",
     "fundamental",
@@ -45,7 +73,9 @@
   "engines": {
     "node": ">=18"
   },
-  "dependencies": {},
+  "dependencies": {
+    "fourier-transform": "^2.2.0"
+  },
   "devDependencies": {
     "tst": "^9.4.0"
   }
