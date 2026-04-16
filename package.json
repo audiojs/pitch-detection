@@ -1,6 +1,6 @@
 {
   "name": "pitch-detection",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "Pitch, chroma, chord and key detection: YIN, McLeod, pYIN, HPS, cepstrum, SWIPE, autocorrelation, AMDF, NNLS chroma, chord templates, Krumhansl-Schmuckler",
   "exports": {
