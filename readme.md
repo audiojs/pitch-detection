@@ -111,14 +111,6 @@ import yin from 'pitch-detection/yin.js'
 let result = yin(samples, { fs: 44100 })
 ```
 
-**Steps:**
-
-1. **Difference function** — $d(\tau) = \sum_{j=1}^{W} (x_j - x_{j+\tau})^2$ for lags $\tau = 1 \ldots W/2$
-2. **Cumulative mean normalized difference** — $d'(\tau) = d(\tau) \cdot \tau \, / \sum_{j=1}^{\tau} d(j)$, with $d'(0) = 1$
-3. **Absolute threshold** — find the first $\tau$ where $d'(\tau) < \text{threshold}$, then descend to the local minimum
-4. **Parabolic interpolation** — sub-sample period using neighbors of the chosen $\tau$
-5. **Output** — $f_0 = f_s / \tau'$, $\text{clarity} = 1 - d'(\tau)$
-
 | Param | Default | |
 |---|---|---|
 | `fs` | `44100` | Sample rate (Hz) |
@@ -139,14 +131,6 @@ import mcleod from 'pitch-detection/mcleod.js'
 
 let result = mcleod(samples, { fs: 44100 })
 ```
-
-**Steps:**
-
-1. **NSDF** — $\text{NSDF}(\tau) = 2 \sum_j x_j x_{j+\tau} \;/\; \bigl(\sum_j x_j^2 + \sum_j x_{j+\tau}^2\bigr)$, ranges $[-1, 1]$
-2. **Positive-region peaks** — collect the local maximum in each positive run that follows a negative region (skipping the self-correlation region at $\tau = 0$)
-3. **Threshold** — pick the first peak $\geq k \cdot \max(\text{peaks})$ (default $k = 0.9$)
-4. **Parabolic interpolation** — sub-sample the peak
-5. **Output** — $f_0 = f_s / \tau'$, $\text{clarity} = \text{NSDF}(\tau)$
 
 | Param | Default | |
 |---|---|---|
@@ -170,15 +154,6 @@ let result = pyin(samples, { fs: 44100 })
 // → { freq: 440.1, clarity: 0.92, candidates: [{ freq: 440.1, prob: 0.85 }, ...] }
 ```
 
-**Steps:**
-
-1. **CMND** — same cumulative mean normalized difference as YIN
-2. **Multi-threshold sweep** — for thresholds [0.05, 0.10, …, 0.50], find the first τ where CMND dips below the threshold, then descend to local minimum
-3. **Beta weighting** — each threshold's contribution is weighted by Beta(2, 18) pdf, concentrating mass on low thresholds (strict picks)
-4. **Aggregation** — probability mass is accumulated per τ; voicing probability = $\max(0, \min(1, 1 - \text{CMND}(\tau)))$
-5. **Parabolic interpolation** — sub-sample the most probable τ
-6. **Output** — `{ freq, clarity, candidates }` where `candidates` is the full posterior sorted by probability
-
 | Param | Default | |
 |---|---|---|
 | `fs` | `44100` | Sample rate (Hz) |
@@ -200,14 +175,6 @@ import autocorrelation from 'pitch-detection/autocorrelation.js'
 let result = autocorrelation(samples, { fs: 44100 })
 ```
 
-**Steps:**
-
-1. **Autocorrelation** — $r(\tau) = \sum_{j=0}^{W-\tau-1} x_j x_{j+\tau}$ for $\tau = 0 \ldots W/2$
-2. **Normalize** — divide by $r(0)$ so $r(0) = 1$
-3. **Peak pick** — descend past the initial region, climb to the first peak above threshold
-4. **Parabolic interpolation** — sub-sample the peak using neighbors of $\tau$
-5. **Output** — $f_0 = f_s / \tau'$, $\text{clarity} = r(\tau)$
-
 | Param | Default | |
 |---|---|---|
 | `fs` | `44100` | Sample rate (Hz) |
@@ -228,14 +195,6 @@ import amdf from 'pitch-detection/amdf.js'
 
 let result = amdf(samples, { fs: 44100 })
 ```
-
-**Steps:**
-
-1. **AMDF** — $d(\tau) = \frac{1}{N - \tau} \sum_{i=0}^{N-\tau-1} |x_i - x_{i+\tau}|$ for valid lag range
-2. **Normalize** — divide by max so threshold is scale-invariant
-3. **First minimum** — find the first local minimum below threshold
-4. **Parabolic interpolation** — sub-sample the minimum
-5. **Output** — $f_0 = f_s / \tau'$, $\text{clarity} = 1 - d(\tau)$
 
 | Param | Default | |
 |---|---|---|
@@ -263,14 +222,6 @@ import hps from 'pitch-detection/hps.js'
 let result = hps(samples, { fs: 44100 })
 ```
 
-**Steps:**
-
-1. **FFT** — magnitude spectrum via `rfft`
-2. **Log-spaced candidates** — at configurable cent resolution (default 10 cents)
-3. **Interpolated harmonic product** — $H(f_0) = \sum_{h=1}^{K} \log \hat{X}(h \cdot f_0)$ with linear interpolation on the magnitude spectrum to avoid bin-alignment bias
-4. **Parabolic interpolation** — in log-frequency for sub-cent accuracy
-5. **Clarity** — ratio of peak height to second non-adjacent local maximum
-
 | Param | Default | |
 |---|---|---|
 | `fs` | `44100` | Sample rate (Hz) |
@@ -296,15 +247,6 @@ import cepstrum from 'pitch-detection/cepstrum.js'
 let result = cepstrum(samples, { fs: 44100 })
 ```
 
-**Steps:**
-
-1. **FFT** — complex FFT via `fft`
-2. **Log magnitude** — $\log(\sqrt{\text{re}^2 + \text{im}^2} + \epsilon)$
-3. **IFFT** — real cepstrum via `ifft`
-4. **Peak pick** — largest peak in valid quefrency range $[f_s / f_{\max}, f_s / f_{\min}]$
-5. **Parabolic interpolation** — sub-sample the peak
-6. **Clarity** — ratio of peak height to second-highest local maximum
-
 | Param | Default | |
 |---|---|---|
 | `fs` | `44100` | Sample rate (Hz) |
@@ -329,16 +271,6 @@ import swipe from 'pitch-detection/swipe.js'
 
 let result = swipe(samples, { fs: 44100 })
 ```
-
-**Steps:**
-
-1. **Hann window** — shapes the main lobe for accurate parabolic interpolation
-2. **FFT** — magnitude spectrum via `rfft`, then $\sqrt{|X(f)|}$ to emphasize weaker harmonics
-3. **Log-spaced candidates** — at configurable cent resolution (default 10 cents)
-4. **Cosine kernel** — $K(f; f_k, f_0) = \cos(2\pi(f - f_k) / f_0)$ for $|f - f_k| \leq f_0/2$; positive central lobe rewards harmonic energy, negative sidelobes penalize inter-harmonic energy
-5. **Prime harmonics** — only harmonics at orders [1, 2, 3, 5, 7, 11], weighted $1/\sqrt{k}$
-6. **Parabolic interpolation** — in log-frequency, then refinement against the nearest spectral peak
-7. **Clarity** — normalized peak strength
 
 | Param | Default | |
 |---|---|---|
@@ -456,12 +388,6 @@ let k = key(chromaVec)
 let k2 = key(chromaFrames)
 ```
 
-**Steps:**
-
-1. **Average** — if given an array of frames, compute mean chroma
-2. **Correlate** — Pearson correlation of input chroma against each of 24 rotated key profiles
-3. **Rank** — sort by correlation; highest wins
-
 | Param | Default | |
 |---|---|---|
 | `profile` | `{ major: KK_MAJOR, minor: KK_MINOR }` | Custom key profiles |
@@ -494,23 +420,6 @@ let k2 = key(chromaFrames)
 | **Missing fundamental** | no | no | no | no | yes | yes | yes |
 | **Min window** | ~4 periods | ~2 periods | ~4 periods | ~4 periods | power of 2 | power of 2 | power of 2 |
 | **Best for** | general | vibrato | ambiguous | embedded | harmonic-rich | pedagogical | studio |
-
-### Choosing an algorithm
-
-**Use YIN** when you need the most reliable result and can afford a full-size window (2048–4096 samples). The threshold directly controls how strict the periodicity requirement is.
-
-**Use McLeod** when tracking fast pitch changes or vibrato, or when you want a smaller window. The NSDF peak selection naturally avoids sub-octave errors.
-
-**Use pYIN** when the signal is ambiguous (breathy vocals, noisy recordings) and you want a pitch posterior for downstream smoothing.
-
-**Use AMDF** in constrained environments. Simpler than YIN — no squaring, no cumulative normalization — but more prone to octave errors.
-
-**Use HPS** for harmonic-rich timbres (guitar, piano, brass) — naturally handles missing fundamentals by aligning harmonic peaks.
-
-**Use Cepstrum** as a spectral-domain complement to time-domain methods, or for pedagogical purposes.
-
-**Use SWIPE** when you need sub-Hz accuracy on clean instrumental signals or studio recordings.
-
 
 ## See also
 
