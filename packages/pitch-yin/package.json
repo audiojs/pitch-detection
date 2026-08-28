@@ -1,6 +1,6 @@
 {
   "name": "@audio/pitch-yin",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "YIN pitch detection (de Cheveigné & Kawahara, 2002)",
   "type": "module",
   "sideEffects": false,

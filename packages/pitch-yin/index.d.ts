@@ -4,6 +4,10 @@ export interface YinOptions {
   fs?: number
   /** CMND threshold — lower = stricter, fewer detections, default 0.15 */
   threshold?: number
+  /** minimum frequency to return (Hz); also improves low-pitch use of the window */
+  minFreq?: number
+  /** maximum frequency to return (Hz) */
+  maxFreq?: number
 }
 
 /** Single-frame pitch estimate. Returns null if no periodic structure is found. */

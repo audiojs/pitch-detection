@@ -101,6 +101,10 @@ let result = yin(samples, { fs: 44100 })
 |---|---|---|
 | `fs` | `44100` | Sample rate (Hz) |
 | `threshold` | `0.15` | CMND threshold — lower = stricter, fewer detections |
+| `minFreq` | — | Minimum frequency (Hz); also uses more of the frame for low pitches |
+| `maxFreq` | — | Maximum frequency (Hz) |
+
+Pass the expected range when known: `yin(samples, { fs, minFreq: 60, maxFreq: 520 })`. Besides rejecting out-of-range results, `minFreq` lets YIN use a longer comparison window and improves low-pitch detection near onsets.
 
 **Use when:** General-purpose monophonic pitch tracking — speech, singing, solo instruments. The most reliable choice when in doubt.<br>
 **Not for:** Polyphonic audio (returns dominant or null), real-time with hard latency budgets (needs full window).<br>

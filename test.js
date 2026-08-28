@@ -31,6 +31,20 @@ function twosines(f1, f2, n, sampleRate = fs) {
   return d
 }
 
+// Decaying harmonic pluck after a short onset delay. This is harder than a
+// stationary sine at low frequencies because the first few periods differ.
+function pluck(freq, n, sampleRate, onset = 384) {
+  let d = new Float32Array(n)
+  for (let i = onset; i < n; i++) {
+    let t = (i - onset) / sampleRate
+    let attack = 1 - Math.exp(-t * 250)
+    for (let h = 1; h <= 10; h++)
+      d[i] += attack * Math.exp(-t * (2 + h * 0.8)) *
+        Math.sin(2 * Math.PI * h * freq * t + 0.1 * h * h) / Math.pow(h, 0.7)
+  }
+  return d
+}
+
 function silence(n) { return new Float32Array(n) }
 
 // band-limited sawtooth: sum of H harmonics with 1/h amplitude (simulates a pitched instrument)
@@ -103,6 +117,18 @@ test('yin — 100 Hz sine', () => {
   let r = yin(sine(100, 4096), { fs })
   ok(r, 'detects low pitch')
   almost(r.freq, 100, 1)
+})
+
+test('yin — bounded range detects a low E pluck in a short window', () => {
+  let sampleRate = 48000
+  let r = yin(pluck(80.91, 4096, sampleRate), { fs: sampleRate, minFreq: 60, maxFreq: 520 })
+  ok(r, 'detects low E after its onset')
+  almost(r.freq, 80.91, 0.5)
+})
+
+test('yin — bounded range rejects out-of-range pitches', () => {
+  is(yin(sine(40, 4096), { fs, minFreq: 60 }), null)
+  is(yin(sine(880, 4096), { fs, maxFreq: 520 }), null)
 })
 
 test('yin — 220 Hz sine', () => {
